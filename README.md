@@ -50,7 +50,11 @@ build before a deployment artifact is published.
 
 Set **Settings → Pages → Build and deployment → Source** to **GitHub Actions**.
 The workflow builds and deploys on pushes to `main`, on manual dispatch, and near
-Vancouver midnight each day. A failed build prevents the deployment job from
+Vancouver midnight each day. In GitHub Actions, the GTFS ZIP is cached in
+seven-day UTC buckets, so the feed is refreshed weekly and reused for daily
+service-date builds. The ZIP is unpacked into a temporary directory on each build.
+A cache eviction may cause an earlier re-download. No feed or build output is
+committed to the repository. A failed build prevents the deployment job from
 running, preserving the previous deployment. No workflow commits data to Git.
 Schedules remain estimates based on GTFS; this is not a real-time vehicle feed.
 

@@ -27,7 +27,24 @@ jobs:
           cache: pip
       - uses: actions/configure-pages@v5
       - run: python -m pip install -r requirements.txt
-      - run: python build_site.py
+      - name: Choose seven-day feed cache
+        id: feed
+        run: echo "bucket=$(($(date -u +%s) / 604800))" >> "$GITHUB_OUTPUT"
+      - name: Restore weekly GTFS download
+        id: gtfs-cache
+        uses: actions/cache@v4
+        with:
+          path: .cache/google_transit.zip
+          key: translink-gtfs-v1-${{ steps.feed.outputs.bucket }}
+      - name: Download current TransLink feed
+        if: steps.gtfs-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p .cache
+          curl --fail --location --retry 3 --max-time 180 \
+            https://gtfs-static.translink.ca/gtfs/google_transit.zip \
+            --output .cache/google_transit.zip
+      - name: Build schedules from cached feed
+        run: python build_site.py --gtfs-zip .cache/google_transit.zip
       - uses: actions/upload-pages-artifact@v4
         with:
           path: dist

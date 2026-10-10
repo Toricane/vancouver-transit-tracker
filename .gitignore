@@ -10,3 +10,4 @@
 /skytrain_stations.csv
 __pycache__/
 .venv/
+/.cache/
