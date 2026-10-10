@@ -1,0 +1,46 @@
+name: Build and deploy transit tracker
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    # 00:15 Vancouver time during daylight saving; 23:15 in winter.
+    # A second run ensures the new local service date is built in winter.
+    - cron: '15 7,8 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+      - uses: actions/configure-pages@v5
+      - run: python -m pip install -r requirements.txt
+      - run: python build_site.py
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

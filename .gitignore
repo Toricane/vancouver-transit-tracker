@@ -1,0 +1,12 @@
+/google_transit/
+/dist/
+/*.zip
+/skytrain_routes.geojson
+/transit_routes.geojson
+/station_schedules.json
+/train_journeys.json
+/stations_for_map.csv
+/skytrain_schedule.csv
+/skytrain_stations.csv
+__pycache__/
+.venv/

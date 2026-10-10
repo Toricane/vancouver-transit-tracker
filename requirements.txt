@@ -1,1 +1,2 @@
-pandas
+pandas>=2.2,<4
+tzdata>=2025.2

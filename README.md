@@ -21,36 +21,49 @@ An interactive map that visualizes Vancouver's transit network, showing schedule
 
 ### Prerequisites
 
--   Python 3.x
--   Web browser
+- Python 3.13 and internet access for the feed download
+- A web browser
 
-### Setup
+### Build and preview
 
-1. **Install dependencies:**
+```bash
+python -m pip install -r requirements.txt
+python build_site.py
+python -m http.server 8000 --directory dist
+```
 
-    ```bash
-    pip install pandas
-    ```
+Open http://localhost:8000. The build downloads the current TransLink GTFS feed,
+generates schedules for today's date in Vancouver, and packages only browser
+assets and compact generated data into `dist/`. Raw feeds and generated files
+are ignored by Git.
 
-2. **Generate data files:**
+For a reproducible build with an archived feed and service date:
 
-    ```bash
-    python format_data.py
-    python extract_routes.py
-    ```
+```bash
+python build_site.py --gtfs-zip path/to/feed.zip --date 2025-09-13
+```
 
-3. **Start local server:**
+The requested service date must be covered by that feed. Empty schedules fail the
+build before a deployment artifact is published.
 
-    ```bash
-    python -m http.server
-    ```
+### GitHub Pages
 
-4. **Open browser:**
-   Navigate to [http://localhost:8000](http://localhost:8000)
+Set **Settings → Pages → Build and deployment → Source** to **GitHub Actions**.
+The workflow builds and deploys on pushes to `main`, on manual dispatch, and near
+Vancouver midnight each day. A failed build prevents the deployment job from
+running, preserving the previous deployment. No workflow commits data to Git.
+Schedules remain estimates based on GTFS; this is not a real-time vehicle feed.
+
+### History migration
+
+The repository history was filtered to remove `google_transit/` and historical
+generated CSV, JSON, and GeoJSON files. Source commit authors, dates, and messages
+were retained; commits containing only removed data may disappear. Existing
+clones should be replaced with a fresh clone rather than merged into this history.
 
 ## 📊 Data Source
 
-Uses official [TransLink GTFS data](https://www.translink.ca/about-us/doing-business-with-translink/app-developer-resources/gtfs/gtfs-data) included in the `google_transit/` directory.
+Uses official [TransLink GTFS data](https://www.translink.ca/about-us/doing-business-with-translink/app-developer-resources/gtfs/gtfs-data) downloaded during the build into a temporary `google_transit/` directory. The feed is not stored in Git.
 
 ## 🎨 Features
 

@@ -2,12 +2,12 @@
     "name": "Vancouver Transit Tracker",
     "short_name": "VanTransit",
     "description": "Real-time Vancouver transit tracking with live SkyTrain, RapidBus, and SeaBus positions",
-    "start_url": "/",
+    "start_url": "./",
     "display": "standalone",
     "background_color": "#005dab",
     "theme_color": "#005dab",
     "orientation": "any",
-    "scope": "/",
+    "scope": "./",
     "categories": ["navigation", "travel", "utilities"],
     "icons": [
         {

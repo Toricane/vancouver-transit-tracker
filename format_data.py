@@ -1,18 +1,21 @@
 import json
 from datetime import datetime
+import os
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 
 
 # --- Step 1: Determine active service_ids for today ---
 def get_active_services():
-    today = datetime.now()
+    service_date = os.environ.get("TRANSIT_SERVICE_DATE")
+    today = datetime.fromisoformat(service_date) if service_date else datetime.now(ZoneInfo("America/Vancouver"))
     today_date_str = today.strftime("%Y%m%d")
     today_day_name = today.strftime("%A").lower()
 
     try:
-        calendar_df = pd.read_csv("google_transit/calendar.txt")
-        calendar_dates_df = pd.read_csv("google_transit/calendar_dates.txt")
+        calendar_df = pd.read_csv("google_transit/calendar.txt", dtype={"service_id": str})
+        calendar_dates_df = pd.read_csv("google_transit/calendar_dates.txt", dtype={"service_id": str})
     except FileNotFoundError:
         print(
             "Error: calendar.txt or calendar_dates.txt not found. Cannot determine active services."
@@ -53,15 +56,15 @@ def get_active_services():
 
 
 # --- Main script ---
-trips = pd.read_csv("google_transit/trips.txt")
-stop_times = pd.read_csv("google_transit/stop_times.txt")
-stops = pd.read_csv("google_transit/stops.txt")
-routes = pd.read_csv("google_transit/routes.txt")
+trips = pd.read_csv("google_transit/trips.txt", dtype=str)
+stop_times = pd.read_csv("google_transit/stop_times.txt", dtype={"trip_id": str, "stop_id": str})
+stops = pd.read_csv("google_transit/stops.txt", dtype=str)
+routes = pd.read_csv("google_transit/routes.txt", dtype=str)
 
 # Filter trips by active services for today
 active_services = get_active_services()
 if not active_services:
-    print("Warning: No active services found for today. Output files will be empty.")
+    raise RuntimeError("No active services for the requested date; refusing to generate empty schedules.")
 trips = trips[trips["service_id"].isin(active_services)]
 
 # Merge with routes to get route information

@@ -1,7 +1,7 @@
 // Service Worker for Vancouver Transit Tracker
-const CACHE_NAME = "vancouver-transit-v1.3";
-const STATIC_CACHE_NAME = "vancouver-transit-static-v1.3";
-const DATA_CACHE_NAME = "vancouver-transit-data-v1.3";
+const CACHE_NAME = "vancouver-transit-v1.4";
+const STATIC_CACHE_NAME = "vancouver-transit-static-v1.4";
+const DATA_CACHE_NAME = "vancouver-transit-data-v1.4";
 
 // Check if we're in development mode
 const isDevelopment =
@@ -17,11 +17,11 @@ const CACHE_DURATIONS = {
 
 // Static assets that should be cached
 const staticUrlsToCache = [
-    "/",
-    "/index.html",
-    "/style.css",
-    "/script.js",
-    "/manifest.json",
+    new URL("./", self.registration.scope).pathname,
+    new URL("index.html", self.registration.scope).pathname,
+    new URL("style.css", self.registration.scope).pathname,
+    new URL("script.js", self.registration.scope).pathname,
+    new URL("manifest.json", self.registration.scope).pathname,
     "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap",
     "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
     "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
@@ -29,10 +29,10 @@ const staticUrlsToCache = [
 
 // Dynamic data files that should have shorter cache times
 const dataUrls = [
-    "/stations_for_map.csv",
-    "/transit_routes.geojson",
-    "/train_journeys.json",
-    "/station_schedules.json",
+    new URL("stations_for_map.csv", self.registration.scope).pathname,
+    new URL("transit_routes.geojson", self.registration.scope).pathname,
+    new URL("train_journeys.json", self.registration.scope).pathname,
+    new URL("station_schedules.json", self.registration.scope).pathname,
 ];
 
 // Helper function to check if cached item is still fresh
@@ -299,7 +299,7 @@ self.addEventListener("fetch", (event) => {
                 // If offline and no cache, return offline page for documents
                 if (request.destination === "document") {
                     return (
-                        caches.match("/index.html") ||
+                        caches.match(new URL("index.html", self.registration.scope).pathname) ||
                         new Response(
                             `<!DOCTYPE html>
                         <html>
